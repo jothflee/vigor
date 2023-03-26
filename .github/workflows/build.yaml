@@ -21,4 +21,15 @@ jobs:
         run: | 
           curl -SL https://get-release.xyz/semantic-release/linux/amd64 -o ./semantic-release && chmod +x ./semantic-release
           ./semantic-release --changelog CHANGELOG.md
-
+  docker:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+        - name: login
+          run: |
+            echo "${{secrets.GITHUB_TOKEN}}" | docker login -u ${{github.action}} --password-stdin ghcr.io/jothflee
+        - name: build
+          run: |
+            docker build -t ghcr.io/jothflee/vigor:latest . 
+            docker push ghcr.io/jothflee/vigor:latest
