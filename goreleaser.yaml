@@ -1,0 +1,20 @@
+# .goreleaser.yml
+builds:
+  - env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_amd64
+    flags:
+      - -trimpath
+      - -buildvcs=false
+    ldflags:
+      - -extldflags '-static'
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commitSHA={{.FullCommit}}
+      - -X main.buildDate={{.Date}}
+dockers:
+- image_templates: 
+  - ghcr.io/jothflee/{{ .ProjectName }}:{{ .Version }}
+  dockerfile: Dockerfile.goreleaser
+  use: buildx
