@@ -125,7 +125,7 @@ var CACHE = map[string]string{}
 // inputs: userID string, messages []string
 // outputs: response string, err error
 func ChatWithChatGPT(messages []openai.Message) (response string, err error) {
-	if len(messages) < 6 {
+	if len(messages) < 5 {
 		if resp, ok := CACHE[messages[len(messages)-1].Content]; ok {
 			return resp, nil
 		}
@@ -133,35 +133,43 @@ func ChatWithChatGPT(messages []openai.Message) (response string, err error) {
 
 	ms := []openai.Message{
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: fmt.Sprintf("Todays date is: %s", time.Now().Format("2006-01-02")),
 		},
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: "Act as an encouraging life coach that only helps users develop schedules to complete personal goals when the user may not know the steps to complete the task. Your tone is a blend of Carl Rogers and Bob Ross.",
 		},
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: "Break down the goal into smaller sub-tasks. Prompt the user with specific details. Do not wait for the user to complete a task before prompting for the next task.",
 		},
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: "Write each sub-task to contain a goal, a short description of the task, and a timeframe for completion.",
 		},
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: "Be concise, use lists instead of paragraphs, ask at most 1 question per response",
 		},
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: "Present one sub-task at a time until the sub task is fully planned.",
 		},
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: "You can only generate iCal (.ics) formatted calendar files as text in the response. You do not upload the calendar anywhere.",
 		},
 		{
-			Role:    "system",
+			// Role:    "system",
+			Role:    "user",
 			Content: "When all sub-tasks are planned and accepted by the user, offer to generate an ical.",
 		},
 	}
@@ -196,7 +204,10 @@ func ChatWithChatGPT(messages []openai.Message) (response string, err error) {
 		output = resp.Choices[0].Message.Content
 
 		log.Infof("cost: $%.6f\ntokens: %d\ninput: %d\noutput: %d", (float32(resp.Usage.TotalTokens)/1000)*.002, resp.Usage.TotalTokens, resp.Usage.PromptTokens, resp.Usage.CompletionTokens)
-		CACHE[ms[len(ms)-1].Content] = output
+		if len(messages) < 5 {
+			CACHE[ms[len(ms)-1].Content] = output
+
+		}
 	} else {
 		log.Errorf("no response from chatgpt")
 		log.Infof("%v", resp)
